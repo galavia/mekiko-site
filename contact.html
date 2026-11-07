@@ -1,0 +1,208 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Nous contacter – Mekiko</title>
+<meta name="description" content="Parent, élève, enseignant, établissement, collectivité ou association : contactez Mekiko, nous vous répondons rapidement.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,600;9..144,700&family=Nunito:wght@400;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<header>
+  <div class="wrap nav">
+    <a class="logo" href="./">meki<span>ko</span></a>
+    <button class="burger" aria-label="Ouvrir le menu" aria-expanded="false" onclick="var m=document.getElementById('menu');var o=m.classList.toggle('open');this.setAttribute('aria-expanded',o)">☰</button>
+    <nav class="menu" id="menu">
+      <a class="lnk" href="./">Accueil</a>
+      <a class="lnk" href="qui-sommes-nous.html">Qui sommes-nous</a>
+      <a class="lnk" href="temoignages.html">Témoignages</a>
+      <a class="btn" href="contact.html" aria-current="page">Nous contacter</a>
+    </nav>
+  </div>
+</header>
+
+<main>
+  <section class="page-hero">
+    <div class="wrap">
+      <div class="kicker">Nous contacter</div>
+      <h1>Parlons de vous, et de la réussite des enfants</h1>
+      <p class="lead">Dites-nous qui vous êtes : nous adaptons nos questions pour vous répondre au plus juste, en général sous 48&nbsp;heures.</p>
+    </div>
+  </section>
+
+  <section class="contact-sec">
+    <div class="wrap">
+      <form id="cform" class="cform" novalidate>
+        <fieldset class="profils">
+          <legend>Vous êtes…</legend>
+          <div class="pgrid">
+            <label class="pcard"><input type="radio" name="profil" value="parent" required><span><b>👨‍👩‍👧 Un parent</b><small>Je veux aider mon enfant dans sa scolarité</small></span></label>
+            <label class="pcard"><input type="radio" name="profil" value="eleve"><span><b>🎒 Un élève</b><small>J’aimerais que Mekiko contacte mes parents</small></span></label>
+            <label class="pcard"><input type="radio" name="profil" value="enseignant"><span><b>🍎 Un enseignant</b><small>Je perçois une difficulté chez un élève et j’ai besoin de parents investis</small></span></label>
+            <label class="pcard"><input type="radio" name="profil" value="etablissement"><span><b>🏫 Un établissement scolaire</b><small>Direction d’école, de collège, de lycée, CPE…</small></span></label>
+            <label class="pcard"><input type="radio" name="profil" value="collectivite"><span><b>🏛️ Une institution publique</b><small>Mairie, département, région, État : soutenir les parents de mon territoire</small></span></label>
+            <label class="pcard"><input type="radio" name="profil" value="association"><span><b>🤝 Une association</b><small>Centre social, maison des familles, soutien scolaire, association de parents</small></span></label>
+            <label class="pcard"><input type="radio" name="profil" value="sante"><span><b>🩺 Un professionnel de santé ou du social</b><small>Orthophoniste, psychologue, médecin, éducateur, assistant social…</small></span></label>
+            <label class="pcard"><input type="radio" name="profil" value="entreprise"><span><b>💼 Une entreprise</b><small>Accompagner mes salariés parents (QVT, RSE)</small></span></label>
+            <label class="pcard"><input type="radio" name="profil" value="financeur"><span><b>🌱 Un financeur ou une fondation</b><small>Soutenir ou cofinancer un projet parentalité</small></span></label>
+            <label class="pcard"><input type="radio" name="profil" value="presse"><span><b>📰 Un journaliste</b><small>Demande d’interview, de reportage, d’information</small></span></label>
+            <label class="pcard"><input type="radio" name="profil" value="autre"><span><b>✨ Autre</b><small>Une idée, une question, une envie de rejoindre l’aventure</small></span></label>
+          </div>
+        </fieldset>
+
+        <div id="fields" class="fields" hidden>
+          <h2 id="ftitle">Vos coordonnées</h2>
+          <p id="fintro" class="fintro"></p>
+
+          <div class="row">
+            <label>Prénom et nom<input name="nom" autocomplete="name" required></label>
+            <label data-only="etablissement collectivite association sante entreprise financeur presse enseignant">Structure / organisme<input name="structure" autocomplete="organization"></label>
+          </div>
+          <div class="row">
+            <label>E-mail<input type="email" name="email" autocomplete="email" required></label>
+            <label>Téléphone <em>(facultatif)</em><input type="tel" name="telephone" autocomplete="tel"></label>
+          </div>
+
+          <!-- Parent -->
+          <div class="row" data-only="parent">
+            <label>Niveau scolaire de votre enfant
+              <select name="niveau_enfant"><option value="">Choisir…</option><option>Maternelle</option><option>CP – CE2</option><option>CM1 – CM2</option><option>6e – 5e</option><option>4e – 3e</option><option>Lycée</option><option>Plusieurs enfants</option></select>
+            </label>
+            <label>Votre principale préoccupation
+              <select name="besoin_parent"><option value="">Choisir…</option><option>Les devoirs à la maison</option><option>Ses résultats / ses progrès</option><option>Son autonomie et son organisation</option><option>Sa confiance en lui / en elle</option><option>La relation avec l’école</option><option>Autre</option></select>
+            </label>
+          </div>
+
+          <!-- Élève -->
+          <div data-only="eleve">
+            <div class="row">
+              <label>Ta classe<input name="classe_eleve" placeholder="ex. 5e"></label>
+              <label>Prénom et nom d’un de tes parents<input name="nom_parent"></label>
+            </div>
+            <div class="row">
+              <label>E-mail ou téléphone de ce parent<input name="contact_parent"></label>
+              <label class="check"><input type="checkbox" name="parent_informe" value="oui"> Mon parent sait que je fais cette demande</label>
+            </div>
+            <p class="note">Nous contacterons uniquement ton parent, avec bienveillance, pour lui présenter Mekiko.</p>
+          </div>
+
+          <!-- Enseignant -->
+          <div class="row" data-only="enseignant">
+            <label>Niveau de l’élève ou de la classe<input name="niveau_classe" placeholder="ex. CM1, 4e…"></label>
+            <label>Type de difficulté perçue
+              <select name="difficulte"><option value="">Choisir…</option><option>Travail personnel / devoirs</option><option>Méthode et organisation</option><option>Motivation, confiance en soi</option><option>Comportement, attention</option><option>Lien école–famille distendu</option><option>Autre</option></select>
+            </label>
+          </div>
+
+          <!-- Structures -->
+          <div class="row" data-only="etablissement collectivite association entreprise financeur">
+            <label>Territoire ou ville concernés<input name="territoire" placeholder="ex. Montfermeil, Seine-Saint-Denis"></label>
+            <label>Nombre de familles visées (environ)
+              <select name="familles"><option value="">Choisir…</option><option>Moins de 50</option><option>50 à 200</option><option>200 à 1 000</option><option>Plus de 1 000</option><option>Je ne sais pas encore</option></select>
+            </label>
+          </div>
+          <div class="row" data-only="etablissement collectivite association entreprise financeur">
+            <label>Votre projet
+              <select name="projet"><option value="">Choisir…</option><option>Proposer le parcours Mekiko aux parents</option><option>Organiser des ateliers / temps d’échange entre parents</option><option>Former des équipes (enseignants, animateurs…)</option><option>Cofinancer un programme</option><option>Échanger d’abord, sans engagement</option></select>
+            </label>
+            <label>Échéance souhaitée
+              <select name="echeance"><option value="">Choisir…</option><option>Dès que possible</option><option>Ce trimestre</option><option>Prochaine rentrée scolaire</option><option>Pas d’échéance précise</option></select>
+            </label>
+          </div>
+
+          <!-- Santé / social -->
+          <div class="row" data-only="sante">
+            <label>Votre métier<input name="metier" placeholder="ex. orthophoniste"></label>
+            <label>Votre souhait
+              <select name="souhait_pro"><option value="">Choisir…</option><option>Orienter des familles vers Mekiko</option><option>Construire un partenariat</option><option>En savoir plus sur la méthode</option></select>
+            </label>
+          </div>
+
+          <!-- Presse -->
+          <div class="row" data-only="presse">
+            <label>Média<input name="media"></label>
+            <label>Date de bouclage <em>(facultatif)</em><input type="date" name="bouclage"></label>
+          </div>
+
+          <label class="full">Votre message<textarea name="message" rows="5" required id="msg"></textarea></label>
+
+          <label class="check"><input type="checkbox" name="rappel" value="oui"> Je préfère être rappelé(e) par téléphone</label>
+          <label class="check"><input type="checkbox" name="rgpd" value="oui" required> J’accepte que Mekiko utilise ces informations uniquement pour répondre à ma demande.</label>
+
+          <input type="text" name="_honey" class="hp" tabindex="-1" autocomplete="off" aria-hidden="true">
+          <button class="btn big-btn" type="submit">Envoyer ma demande</button>
+          <p id="status" class="status" role="status"></p>
+        </div>
+      </form>
+
+      <aside class="direct">
+        <h2>Ou directement</h2>
+        <p><a href="mailto:contact@mekiko.fr">contact@mekiko.fr</a></p>
+        <p><a href="tel:+33630094313">06 30 09 43 13</a></p>
+      </aside>
+    </div>
+  </section>
+</main>
+
+<footer id="contact">
+  <div class="wrap">
+    <h2>Contactez-nous</h2>
+    <p class="contact"><a href="mailto:contact@mekiko.fr">contact@mekiko.fr</a></p>
+    <p class="contact"><a href="tel:+33630094313">06 30 09 43 13</a></p>
+    <p style="margin-top:2em;font-size:.9rem">© <span id="y">2026</span> Mekiko</p>
+  </div>
+</footer>
+<script>
+document.getElementById('y').textContent=new Date().getFullYear();
+(function(){
+  var f=document.getElementById('cform'),fields=document.getElementById('fields'),
+      title=document.getElementById('ftitle'),intro=document.getElementById('fintro'),msg=document.getElementById('msg'),st=document.getElementById('status');
+  var T={
+    parent:['Parlons de votre enfant','Quelques mots sur votre enfant nous aident à vous proposer le bon accompagnement.','Racontez-nous la situation : ce qui se passe bien, ce qui coince…'],
+    eleve:['Merci de ta confiance !','Tu fais un premier pas formidable. Laisse-nous les coordonnées d’un de tes parents.','Explique-nous en quelques mots pourquoi tu aimerais qu’on parle à tes parents.'],
+    enseignant:['Agissons ensemble pour votre élève','Les parents sont vos meilleurs alliés : nous pouvons les aider à prendre le relais à la maison.','Décrivez ce que vous observez (sans données nominatives sur l’élève).'],
+    etablissement:['Votre établissement','Nous construisons avec vous un dispositif adapté à vos familles.','Présentez-nous votre contexte et vos attentes.'],
+    collectivite:['Soutenir les parents de votre territoire','Mairies, départements, régions : nous déployons Mekiko à l’échelle de votre territoire.','Décrivez votre projet, vos publics et vos priorités.'],
+    association:['Votre association','Ensemble, renforçons l’accompagnement des familles que vous suivez.','Présentez votre structure et ce que vous imaginez avec Mekiko.'],
+    sante:['Orienter et accompagner les familles','Vous accompagnez des enfants : Mekiko outille leurs parents au quotidien.','Dites-nous comment nous pourrions travailler ensemble.'],
+    entreprise:['Vos salariés parents','Un parent serein est un salarié plus serein : parlons QVT et parentalité.','Présentez votre entreprise et vos attentes.'],
+    financeur:['Soutenir un projet parentalité','Mekiko est engagé auprès de collectivités et de partenaires publics. Parlons impact.','Présentez votre organisation et vos axes de soutien.'],
+    presse:['Demande presse','Nous répondons avec plaisir aux journalistes.','Sujet, angle, format souhaité…'],
+    autre:['Votre demande','Une idée, une question, une envie de nous rejoindre ? Écrivez-nous.','Votre message']
+  };
+  function apply(p){
+    fields.hidden=false; var t=T[p]||T.autre; title.textContent=t[0]; intro.textContent=t[1]; msg.placeholder=t[2];
+    document.querySelectorAll('[data-only]').forEach(function(el){
+      var on=el.getAttribute('data-only').split(' ').indexOf(p)>-1; el.hidden=!on;
+      el.querySelectorAll('input,select,textarea').forEach(function(i){i.disabled=!on});
+    });
+  }
+  f.addEventListener('change',function(e){ if(e.target.name==='profil'){apply(e.target.value); setTimeout(function(){fields.scrollIntoView({behavior:'smooth',block:'start'})},60);} });
+  var pre=new URLSearchParams(location.search).get('profil');
+  if(pre){var r=f.querySelector('input[value="'+pre+'"]'); if(r){r.checked=true;apply(pre);}}
+  var L={parent:'Parent',eleve:'Élève',enseignant:'Enseignant',etablissement:'Établissement scolaire',collectivite:'Institution publique',association:'Association',sante:'Professionnel santé/social',entreprise:'Entreprise',financeur:'Financeur/fondation',presse:'Presse',autre:'Autre'};
+  f.addEventListener('submit',function(e){
+    e.preventDefault(); if(!f.checkValidity()){f.reportValidity();return;}
+    if(f._honey.value) return;
+    var fd=new FormData(f), data={}; fd.forEach(function(v,k){ if(v && k!=='_honey') data[k]=v; });
+    data.profil=L[data.profil]||data.profil;
+    data._subject='Site Mekiko – '+data.profil+' – '+(data.nom||'');
+    data._template='table'; data._captcha='false';
+    st.textContent='Envoi en cours…'; st.className='status';
+    fetch('https://formsubmit.co/ajax/contact@mekiko.fr',{method:'POST',headers:{'Content-Type':'application/json','Accept':'application/json'},body:JSON.stringify(data)})
+      .then(function(r){return r.json()}).then(function(j){
+        if(j.success==='true'||j.success===true){ f.innerHTML='<div class="merci"><div class="big">Merci&nbsp;!</div><p>Votre demande est bien partie. Nous vous répondons très vite.</p><a class="btn" href="./">Retour à l’accueil</a></div>'; window.scrollTo({top:0,behavior:'smooth'}); }
+        else throw 0;
+      }).catch(function(){
+        var body=Object.keys(data).filter(function(k){return k[0]!=='_'}).map(function(k){return k+' : '+data[k]}).join('\n');
+        st.innerHTML='L’envoi automatique n’a pas abouti. <a href="mailto:contact@mekiko.fr?subject='+encodeURIComponent(data._subject)+'&body='+encodeURIComponent(body)+'">Cliquez ici pour l’envoyer par e-mail</a>.';
+        st.className='status err';
+      });
+  });
+})();
+</script>
+</body>
+</html>
