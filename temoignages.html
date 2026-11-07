@@ -1,0 +1,85 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Témoignages – Mekiko</title>
+<meta name="description" content="Ce que disent les parents qui ont suivi le parcours Mekiko.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,600;9..144,700&family=Nunito:wght@400;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<header>
+  <div class="wrap nav">
+    <a class="logo" href="./">meki<span>ko</span></a>
+    <button class="burger" aria-label="Ouvrir le menu" aria-expanded="false" onclick="var m=document.getElementById('menu');var o=m.classList.toggle('open');this.setAttribute('aria-expanded',o)">☰</button>
+    <nav class="menu" id="menu">
+      <a class="lnk" href="./">Accueil</a>
+      <a class="lnk" href="qui-sommes-nous.html">Qui sommes-nous</a>
+      <a class="lnk on" href="temoignages.html" aria-current="page">Témoignages</a>
+      <a class="btn" href="#contact">Nous contacter</a>
+    </nav>
+  </div>
+</header>
+
+<main>
+  <section class="page-hero">
+    <div class="wrap">
+      <div class="kicker">Témoignages</div>
+      <h1>Paroles de parents</h1>
+      <p class="lead">Ils ont suivi le parcours Mekiko. Voici ce qu’ils en disent, avec leurs mots.</p>
+    </div>
+  </section>
+
+  <section class="alt">
+    <div class="wrap">
+      <div class="kicker">Ils nous ont écrit</div>
+      <h2>Leurs messages</h2>
+      <div class="quotes">
+        <figure class="quote"><p>Merci pour vos vidéos monsieur Bruno, elles sont vraiment utiles pour moi et mes enfants.</p><footer>Mme X</footer></figure>
+        <figure class="quote"><p>Super les conseils, je vais imprimer les fiches horaires et les mettre en pratique avec mes enfants. Merci encore.</p><footer>Mme D, maman de Mathys</footer></figure>
+        <figure class="quote"><p>Je suis tellement ravie de faire partie de ce programme, mes enfants encore plus, merci à MEKIKO.</p><footer>Mme Y, maman de Gabriel et Brian</footer></figure>
+        <figure class="quote"><p>Ravie de vous rencontrer monsieur Bruno, vos conseils sont des trésors, merci.</p><footer>Mme A, maman de Zina</footer></figure>
+        <figure class="quote"><p>Les vidéos sont concises et très riches en information. Le format est parfait.</p><footer>Mme M, maman de Hamza et Mohammed</footer></figure>
+      </div>
+    </div>
+  </section>
+
+  <section>
+    <div class="wrap">
+      <div class="kicker">Ils nous l’ont dit</div>
+      <h2>Ce qui a changé à la maison</h2>
+      <div class="oral">
+        <p>« J’applique ! Je lui ai installé un bureau et une lampe de bureau. »</p>
+        <p>« Ça m’a conforté et encouragé. »</p>
+        <p>« Limite, j’ai plus le même enfant ! Le fait que ce soit plus structuré, il se met au travail plus rapidement et devient plus autonome. »</p>
+        <p>« Maintenant il vérifie sa trousse tous les soirs pour le lendemain. »</p>
+        <p>« Les intelligences multiples ont été très utiles pour mieux comprendre mes enfants. »</p>
+        <p>« Avant je criais, maintenant plus besoin : ils ont l’habitude de se mettre au travail. »</p>
+        <p>« Franchement, Mekiko m’a aidée à comprendre le système français et ce qu’on attend de moi et de mon enfant. »</p>
+      </div>
+    </div>
+  </section>
+
+  <section class="alt cta-band">
+    <div class="wrap">
+      <h2>Et si c’était votre tour ?</h2>
+      <p>Vous êtes parent, ou vous représentez une école, une mairie ou une association ? Parlons-en.</p>
+      <a class="btn" href="#contact">Nous contacter</a>
+    </div>
+  </section>
+</main>
+
+<footer id="contact">
+  <div class="wrap">
+    <h2>Contactez-nous</h2>
+    <p class="contact"><a href="mailto:contact@mekiko.fr">contact@mekiko.fr</a></p>
+    <p class="contact"><a href="tel:+33630094313">06 30 09 43 13</a></p>
+    <p style="margin-top:2em;font-size:.9rem">© <span id="y">2026</span> Mekiko</p>
+  </div>
+</footer>
+<script>document.getElementById('y').textContent=new Date().getFullYear()</script>
+</body>
+</html>
