@@ -192,7 +192,8 @@ document.getElementById('y').textContent=new Date().getFullYear();
     data._subject='Site Mekiko – '+data.profil+' – '+(data.nom||'');
     data._template='table'; data._captcha='false';
     st.textContent='Envoi en cours…'; st.className='status';
-    fetch('https://formsubmit.co/ajax/contact@mekiko.fr',{method:'POST',headers:{'Content-Type':'application/json','Accept':'application/json'},body:JSON.stringify(data)})
+    var ac=new AbortController(); setTimeout(function(){ac.abort()},12000);
+    fetch('https://formsubmit.co/ajax/contact@mekiko.fr',{method:'POST',signal:ac.signal,headers:{'Content-Type':'application/json','Accept':'application/json'},body:JSON.stringify(data)})
       .then(function(r){return r.json()}).then(function(j){
         if(j.success==='true'||j.success===true){ f.innerHTML='<div class="merci"><div class="big">Merci&nbsp;!</div><p>Votre demande est bien partie. Nous vous répondons très vite.</p><a class="btn" href="./">Retour à l’accueil</a></div>'; window.scrollTo({top:0,behavior:'smooth'}); }
         else throw 0;
