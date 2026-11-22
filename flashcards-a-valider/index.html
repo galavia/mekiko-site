@@ -84,6 +84,7 @@ details{margin:12px 0}
 .lecture .tete{display:flex;justify-content:space-between;align-items:center;color:var(--discret);font-size:.9rem}
 .lecture .face{flex:1;display:flex;align-items:center;justify-content:center;text-align:center;font-size:1.25rem;background:var(--carte);border:1px solid var(--bord);border-radius:14px;margin:12px 0;padding:18px;overflow:auto;white-space:pre-wrap}
 .lecture .pied{display:flex;gap:8px}.lecture .pied .bouton{flex:1}
+.dlg{background:var(--carte);color:var(--texte);border-radius:12px;padding:18px;max-width:420px;width:calc(100vw - 32px);box-shadow:0 10px 40px rgba(0,0,0,.4)}.dlg p{margin:0 0 14px}.dlg .rangee{justify-content:flex-end}
 </style>
 </head>
 <body>
@@ -497,6 +498,19 @@ function rafraichirListe() {
   });
 }
 
+function confirmer(texte) {
+  return new Promise(resolve => {
+    const fond = h('div', { class: 'lecture-fond' });
+    const fin = v => { fond.remove(); resolve(v); };
+    fond.append(h('div', { class: 'dlg', role: 'dialog' },
+      h('p', {}, texte),
+      h('div', { class: 'rangee' },
+        h('button', { class: 'bouton', onclick: () => fin(false) }, 'Annuler'),
+        h('button', { class: 'bouton danger', onclick: () => fin(true) }, 'Confirmer'))));
+    document.body.append(fond);
+  });
+}
+
 function ouvrirLecture(p) {
   const d = p.data; let i = 0, verso = false;
   const fond = h('div', { class: 'lecture-fond' });
@@ -561,12 +575,12 @@ async function action(p, nom) {
       await enregistrer(p);
       notifier('Enregistré dans GitHub.');
     } else if (nom === 'exporter') {
-      if (!confirm('Envoyer ce paquet dans memoflash-catalogue et le supprimer de memoflash-cartes ?')) return;
+      if (!await confirmer('Envoyer ce paquet dans memoflash-catalogue et le supprimer de memoflash-cartes ?')) return;
       if (p.modifie) await enregistrer(p);
       await exporter(p);
       notifier('Paquet publié dans le catalogue et retiré de memoflash-cartes.');
     } else if (nom === 'retirer') {
-      if (!confirm('Retirer ce paquet du catalogue de l\'appli ? Les élèves qui l\'ont déjà téléchargé le gardent.')) return;
+      if (!await confirmer('Retirer ce paquet du catalogue de l\'appli ? Les élèves qui l\'ont déjà téléchargé le gardent.')) return;
       await retirer(p);
       notifier('Retiré du catalogue.');
     } else if (nom === 'supprimer') {
@@ -668,9 +682,9 @@ function rafraichirEditeur() {
       d.cartes.forEach(c => { c.valide = true; });
       marquerModifie(p); rafraichirEditeur();
     } }, 'Tout cocher comme relu'),
-    h('button', { class: 'bouton danger', onclick: () => {
+    h('button', { class: 'bouton danger', onclick: async () => {
       if (d.publie) { notifier('Retire d\'abord ce paquet de l\'appli.', true); return; }
-      if (confirm('Supprimer définitivement le paquet « ' + d.nom + ' » ?')) {
+      if (await confirmer('Supprimer définitivement le paquet « ' + d.nom + ' » ?')) {
         if (!p.sha) { etat.paquets.splice(etat.paquets.indexOf(p), 1); etat.courant = null; rafraichirListe(); rafraichirEditeur(); }
         else action(p, 'supprimer');
       }
@@ -717,8 +731,8 @@ function blocCarte(p, c, i) {
       h('label', { class: 'verif' }, case_, 'Relue et validée'),
       h('button', { class: 'bouton petit', title: 'Monter', disabled: i === 0, onclick: deplacer(-1) }, '↑'),
       h('button', { class: 'bouton petit', title: 'Descendre', disabled: i === d.cartes.length - 1, onclick: deplacer(1) }, '↓'),
-      h('button', { class: 'bouton petit danger', title: 'Supprimer la carte', onclick: () => {
-        if (!confirm('Supprimer cette carte ?')) return;
+      h('button', { class: 'bouton petit danger', title: 'Supprimer la carte', onclick: async () => {
+        if (!await confirmer('Supprimer cette carte ?')) return;
         d.cartes.splice(i, 1);
         invaliderPaquet(p); marquerModifie(p); rafraichirEditeur();
       } }, 'Supprimer')),
@@ -740,7 +754,7 @@ function blocCarte(p, c, i) {
 async function demarrer() {
   if (location.hash === '#installation') { ecranInstallation(); return; }
   if (!jeton) { ecranConnexion(); return; }
-  if (etat.paquets.some(p => p.modifie) && !confirm('Des modifications ne sont pas enregistrées. Recharger quand même ?')) return;
+  if (etat.paquets.some(p => p.modifie) && !await confirmer('Des modifications ne sont pas enregistrées. Recharger quand même ?')) return;
   const app = document.getElementById('app');
   app.textContent = '';
   app.append(h('div', { class: 'vide' }, 'Chargement des paquets…'));
