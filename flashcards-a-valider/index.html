@@ -1,0 +1,775 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex, nofollow">
+<title>MemoFlash · Bibliothèque</title>
+<link rel="stylesheet" href="vendor/katex/katex.min.css">
+<style>
+:root{
+  --fond:#f5f6fb; --carte:#ffffff; --texte:#1f2433; --discret:#5d6478; --bord:#dfe2ee;
+  --accent:#3f51b5; --accent-fonce:#303f9f; --ok:#2e7d32; --ok-fond:#e3f3e4;
+  --alerte:#b26a00; --alerte-fond:#fff1d6; --danger:#c62828; --danger-fond:#fde8e8;
+  --payant:#7b1fa2; --payant-fond:#f1e3f6;
+}
+@media (prefers-color-scheme: dark){
+  :root{
+    --fond:#14161f; --carte:#1d2030; --texte:#e8eaf3; --discret:#a2a9bf; --bord:#323650;
+    --accent:#8c9eff; --accent-fonce:#aab6ff; --ok:#81c784; --ok-fond:#1b3320;
+    --alerte:#ffb74d; --alerte-fond:#3a2a10; --danger:#ef9a9a; --danger-fond:#3a1818;
+    --payant:#ce93d8; --payant-fond:#2f1c36;
+  }
+}
+*{box-sizing:border-box}
+body{margin:0;font:16px/1.5 system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;background:var(--fond);color:var(--texte)}
+button,input,select,textarea{font:inherit;color:inherit}
+h1,h2,h3{margin:0 0 .4em;line-height:1.25}
+.barre{display:flex;flex-wrap:wrap;align-items:center;gap:8px 12px;padding:10px 20px;background:var(--carte);border-bottom:1px solid var(--bord);position:sticky;top:0;z-index:5}
+.barre h1{font-size:1.1rem;margin:0;flex:1;min-width:160px}
+.mise-en-page{display:grid;grid-template-columns:320px minmax(0,1fr);gap:20px;padding:20px;max-width:1400px;margin:0 auto;align-items:start}
+.panneau{background:var(--carte);border:1px solid var(--bord);border-radius:14px;padding:16px}
+.liste{position:sticky;top:64px;max-height:calc(100vh - 84px);overflow:auto}
+.groupe{font-size:.78rem;font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:var(--discret);margin:16px 0 6px}
+.groupe:first-child{margin-top:0}
+.element{display:block;width:100%;text-align:left;background:transparent;border:1px solid transparent;border-radius:10px;padding:8px 10px;cursor:pointer}
+.element:hover{background:var(--fond)}
+.element.actif{background:var(--fond);border-color:var(--accent)}
+.element .nom{font-weight:600}
+.pastilles{display:flex;gap:6px;flex-wrap:wrap;margin-top:4px;font-size:.78rem}
+.pastille{border-radius:999px;padding:1px 8px;background:var(--fond);border:1px solid var(--bord);color:var(--discret)}
+.pastille.ok{background:var(--ok-fond);color:var(--ok);border-color:transparent}
+.pastille.alerte{background:var(--alerte-fond);color:var(--alerte);border-color:transparent}
+.pastille.payant{background:var(--payant-fond);color:var(--payant);border-color:transparent}
+.bouton{border:1px solid var(--bord);background:var(--carte);border-radius:10px;padding:8px 14px;cursor:pointer}
+.bouton:hover:not(:disabled){border-color:var(--accent)}
+.bouton:disabled{opacity:.5;cursor:not-allowed}
+.bouton.principal{background:var(--accent);border-color:var(--accent);color:#fff}
+body .bouton.principal:hover:not(:disabled){background:var(--accent-fonce)}
+.bouton.danger{color:var(--danger)}
+.bouton.petit{padding:3px 9px;font-size:.85rem}
+.rangee{display:flex;gap:10px;flex-wrap:wrap;align-items:center}
+.champs{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:12px;margin:12px 0}
+label.champ{display:flex;flex-direction:column;gap:4px;font-size:.85rem;color:var(--discret)}
+label.champ input,label.champ select{padding:7px 9px;border:1px solid var(--bord);border-radius:8px;background:var(--fond);color:var(--texte)}
+.barre-actions{display:flex;gap:10px;flex-wrap:wrap;align-items:center;margin:14px 0;padding:12px;background:var(--fond);border-radius:10px}
+.etat{flex:1;min-width:200px;font-size:.9rem;color:var(--discret)}
+.etat strong{color:var(--texte)}
+.carte-edit{border:1px solid var(--bord);border-radius:12px;padding:12px;margin:12px 0;background:var(--carte)}
+.carte-edit.validee{border-color:var(--ok)}
+.carte-tete{display:flex;gap:8px;align-items:center;margin-bottom:8px;flex-wrap:wrap}
+.carte-tete .num{font-weight:700;color:var(--discret);margin-right:auto}
+.faces{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:12px}
+.face textarea{width:100%;min-height:76px;resize:vertical;padding:8px;border:1px solid var(--bord);border-radius:8px;background:var(--fond);color:var(--texte);font-family:ui-monospace,Consolas,monospace;font-size:.9rem}
+.apercu{margin-top:6px;padding:10px;min-height:44px;border:1px dashed var(--bord);border-radius:8px;overflow-x:auto}
+.titre-face{font-size:.78rem;font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:var(--discret);margin-bottom:4px}
+.erreur-math{color:var(--danger);font-family:ui-monospace,Consolas,monospace;font-size:.85rem}
+.verif{display:flex;gap:6px;align-items:center;cursor:pointer}
+.verif input{width:18px;height:18px}
+.message{position:fixed;left:50%;bottom:20px;transform:translateX(-50%);max-width:min(560px,92vw);padding:12px 18px;border-radius:12px;box-shadow:0 6px 24px rgba(0,0,0,.25);background:var(--texte);color:var(--fond);z-index:20}
+.message.erreur{background:var(--danger);color:#fff}
+.connexion{max-width:640px;margin:40px auto;padding:0 16px}
+.connexion ol{padding-left:1.2em}
+.connexion input[type=password],.connexion input[type=text]{width:100%;padding:9px 10px;border:1px solid var(--bord);border-radius:8px;background:var(--fond);color:var(--texte)}
+details{margin:12px 0}
+.vide{color:var(--discret);text-align:center;padding:40px 10px}
+@media (max-width:900px){
+  .mise-en-page{grid-template-columns:minmax(0,1fr)}
+  .liste{position:static;max-height:none}
+  .faces{grid-template-columns:minmax(0,1fr)}
+}
+
+.lecture-fond{position:fixed;inset:0;background:rgba(10,12,20,.6);display:flex;align-items:center;justify-content:center;z-index:50}
+.lecture{background:var(--fond);width:min(420px,100vw);height:min(760px,100vh);border-radius:18px;display:flex;flex-direction:column;padding:14px;box-shadow:0 10px 40px rgba(0,0,0,.4)}
+.lecture .tete{display:flex;justify-content:space-between;align-items:center;color:var(--discret);font-size:.9rem}
+.lecture .face{flex:1;display:flex;align-items:center;justify-content:center;text-align:center;font-size:1.25rem;background:var(--carte);border:1px solid var(--bord);border-radius:14px;margin:12px 0;padding:18px;overflow:auto;white-space:pre-wrap}
+.lecture .pied{display:flex;gap:8px}.lecture .pied .bouton{flex:1}
+</style>
+</head>
+<body>
+<div id="app"></div>
+<script src="vendor/katex/katex.min.js"></script>
+<script>
+"use strict";
+
+/* ============================================================
+   Réglages et outils
+   ============================================================ */
+const REGLAGES_CLE = 'memoflash-reglages';
+const reglages = Object.assign(
+  { proprietaire: 'galavia', depotPrive: 'memoflash-cartes', depotPublic: 'memoflash-catalogue', branche: 'main' },
+  lireJson(localStorage, REGLAGES_CLE) || {}
+);
+let jeton = lireTexte(sessionStorage, 'mf-jeton') || '';
+
+function lireTexte(stock, cle) { try { return stock.getItem(cle); } catch (e) { return null; } }
+function ecrireTexte(stock, cle, v) { try { stock.setItem(cle, v); } catch (e) { /* ignoré */ } }
+function effacerTexte(stock, cle) { try { stock.removeItem(cle); } catch (e) { /* ignoré */ } }
+function lireJson(stock, cle) { try { return JSON.parse(stock.getItem(cle)); } catch (e) { return null; } }
+
+function h(balise, props, ...enfants) {
+  const el = document.createElement(balise);
+  for (const [k, v] of Object.entries(props || {})) {
+    if (k === 'class') el.className = v;
+    else if (k.startsWith('on')) el.addEventListener(k.slice(2), v);
+    else if (['value', 'checked', 'disabled', 'selected'].includes(k)) el[k] = v;
+    else if (v === true) el.setAttribute(k, '');
+    else if (v !== false && v != null) el.setAttribute(k, v);
+  }
+  for (const e of enfants.flat()) {
+    if (e == null || e === false) continue;
+    el.append(e.nodeType ? e : document.createTextNode(String(e)));
+  }
+  return el;
+}
+
+function slug(texte) {
+  return texte.normalize('NFD').replace(/[̀-ͯ]/g, '').toLowerCase()
+    .replace(/[^a-z0-9]+/g, '-').replace(/^-+|-+$/g, '');
+}
+
+function b64enc(texte) {
+  const octets = new TextEncoder().encode(texte);
+  let bin = '';
+  octets.forEach(o => { bin += String.fromCharCode(o); });
+  return btoa(bin);
+}
+function b64dec(b64) {
+  const bin = atob(b64.replace(/\s/g, ''));
+  return new TextDecoder().decode(Uint8Array.from(bin, c => c.charCodeAt(0)));
+}
+
+let minuteurMessage = null;
+function notifier(texte, erreur) {
+  document.querySelectorAll('.message').forEach(m => m.remove());
+  const m = h('div', { class: 'message' + (erreur ? ' erreur' : ''), role: 'status' }, texte);
+  document.body.append(m);
+  clearTimeout(minuteurMessage);
+  minuteurMessage = setTimeout(() => m.remove(), erreur ? 9000 : 4000);
+}
+
+/* ============================================================
+   API GitHub (le jeton reste dans ce navigateur)
+   ============================================================ */
+const API = 'https://api.github.com';
+
+async function gh(methode, chemin, corps) {
+  const reponse = await fetch(API + chemin, {
+    method: methode,
+    headers: Object.assign({
+      'Accept': 'application/vnd.github+json',
+      'Authorization': 'Bearer ' + jeton,
+      'X-GitHub-Api-Version': '2022-11-28'
+    }, corps ? { 'Content-Type': 'application/json' } : {}),
+    body: corps ? JSON.stringify(corps) : undefined
+  });
+  if (reponse.status === 204) return null;
+  const donnees = await reponse.json().catch(() => ({}));
+  if (!reponse.ok) {
+    const e = new Error(donnees.message || ('Erreur ' + reponse.status));
+    e.status = reponse.status;
+    throw e;
+  }
+  return donnees;
+}
+
+function cheminFichier(depot, fichier) {
+  return '/repos/' + encodeURIComponent(reglages.proprietaire) + '/' + encodeURIComponent(depot) +
+    '/contents/' + fichier.split('/').map(encodeURIComponent).join('/');
+}
+
+async function lireFichier(depot, fichier) {
+  try {
+    const d = await gh('GET', cheminFichier(depot, fichier) + '?ref=' + encodeURIComponent(reglages.branche));
+    return { sha: d.sha, texte: b64dec(d.content) };
+  } catch (e) {
+    if (e.status === 404) return null;
+    throw e;
+  }
+}
+
+async function ecrireFichier(depot, fichier, texte, sha, message) {
+  const corps = { message, content: b64enc(texte), branch: reglages.branche };
+  if (sha) corps.sha = sha;
+  const d = await gh('PUT', cheminFichier(depot, fichier), corps);
+  return d.content.sha;
+}
+
+async function supprimerFichier(depot, fichier, sha, message) {
+  await gh('DELETE', cheminFichier(depot, fichier), { message, sha, branch: reglages.branche });
+}
+
+async function listerPaquets() {
+  let liste;
+  try {
+    liste = await gh('GET', cheminFichier(reglages.depotPrive, 'paquets') + '?ref=' + encodeURIComponent(reglages.branche));
+  } catch (e) {
+    if (e.status === 404) return []; // dossier pas encore créé
+    throw e;
+  }
+  const fichiers = liste.filter(f => f.type === 'file' && f.name.endsWith('.json'));
+  const resultats = [];
+  for (let i = 0; i < fichiers.length; i += 6) {
+    const lot = await Promise.all(fichiers.slice(i, i + 6).map(f => lireFichier(reglages.depotPrive, 'paquets/' + f.name)));
+    lot.forEach(r => {
+      if (!r) return;
+      const data = JSON.parse(r.texte);
+      resultats.push({ sha: r.sha, data, modifie: false });
+    });
+  }
+  return resultats;
+}
+
+/* ============================================================
+   Données
+   ============================================================ */
+const etat = { paquets: [], courant: null, occupe: false };
+
+function paquetCourant() { return etat.paquets[etat.courant] || null; }
+
+function estRempli(c) { return c.recto.trim() !== '' && c.verso.trim() !== ''; }
+function toutesValidees(d) { return d.cartes.length > 0 && d.cartes.every(c => c.valide && estRempli(c)); }
+function nbValidees(d) { return d.cartes.filter(c => c.valide).length; }
+
+function marquerModifie(p) {
+  p.modifie = true;
+  rafraichirBarreActions();
+  rafraichirListe();
+}
+
+function invaliderPaquet(p) {
+  if (p.data.statut === 'valide') p.data.statut = 'en_cours';
+}
+
+function prochainIdCarte(d) {
+  let max = 0;
+  d.cartes.forEach(c => { const n = parseInt(String(c.id).replace(/\D/g, ''), 10); if (n > max) max = n; });
+  return 'c' + String(max + 1).padStart(3, '0');
+}
+
+function triPaquets() {
+  const courant = paquetCourant();
+  etat.paquets.sort((a, b) =>
+    a.data.matiere.localeCompare(b.data.matiere, 'fr') ||
+    a.data.niveau.localeCompare(b.data.niveau, 'fr') ||
+    (a.data.ordre || 0) - (b.data.ordre || 0) ||
+    a.data.nom.localeCompare(b.data.nom, 'fr'));
+  etat.courant = courant ? etat.paquets.indexOf(courant) : null;
+}
+
+/* ============================================================
+   Enregistrer / exporter / retirer
+   ============================================================ */
+async function enregistrer(p) {
+  const d = p.data;
+  d.maj = new Date().toISOString();
+  p.sha = await ecrireFichier(reglages.depotPrive, 'paquets/' + d.id + '.json',
+    JSON.stringify(d, null, 1) + '\n', p.sha, 'Met à jour ' + d.id);
+  p.modifie = false;
+}
+
+function contenuPourAppli(d) {
+  return {
+    format: 'flashcards-maths',
+    version: 1,
+    matieres: [{
+      nom: d.matiere,
+      paquets: [{
+        nom: d.niveau + ' · ' + d.nom,
+        cartes: d.cartes.map(c => ({ recto: c.recto, verso: c.verso }))
+      }]
+    }]
+  };
+}
+
+async function exporter(p) {
+  const d = p.data;
+  if (d.acces !== 'gratuit') throw new Error('Seuls les paquets gratuits peuvent être exportés pour le moment.');
+  if (d.statut !== 'valide' || !toutesValidees(d)) throw new Error('Valide toutes les cartes puis le paquet avant d\'exporter.');
+
+  d.versionPubliee = (d.versionPubliee || 0) + 1;
+  const fichier = 'paquets/' + d.id + '.json';
+  const existant = await lireFichier(reglages.depotPublic, fichier);
+  await ecrireFichier(reglages.depotPublic, fichier,
+    JSON.stringify(contenuPourAppli(d), null, 1) + '\n', existant && existant.sha,
+    'Publie ' + d.id + ' (version ' + d.versionPubliee + ')');
+
+  const cat = await lireFichier(reglages.depotPublic, 'catalogue.json');
+  const catalogue = cat ? JSON.parse(cat.texte) : { version: 1, paquets: [] };
+  const entree = {
+    id: d.id, matiere: d.matiere, niveau: d.niveau, nom: d.nom,
+    nbCartes: d.cartes.length, version: d.versionPubliee, fichier
+  };
+  const i = catalogue.paquets.findIndex(e => e.id === d.id);
+  if (i >= 0) catalogue.paquets[i] = entree; else catalogue.paquets.push(entree);
+  catalogue.maj = new Date().toISOString();
+  await ecrireFichier(reglages.depotPublic, 'catalogue.json',
+    JSON.stringify(catalogue, null, 1) + '\n', cat && cat.sha, 'Met à jour le catalogue');
+
+  await supprimerFichier(reglages.depotPrive, 'paquets/' + d.id + '.json', p.sha, 'Paquet validé et publié : ' + d.id);
+  etat.paquets.splice(etat.paquets.indexOf(p), 1);
+  etat.courant = null;
+}
+
+async function retirer(p) {
+  const d = p.data;
+  const fichier = 'paquets/' + d.id + '.json';
+  const existant = await lireFichier(reglages.depotPublic, fichier);
+  if (existant) await supprimerFichier(reglages.depotPublic, fichier, existant.sha, 'Retire ' + d.id);
+  const cat = await lireFichier(reglages.depotPublic, 'catalogue.json');
+  if (cat) {
+    const catalogue = JSON.parse(cat.texte);
+    catalogue.paquets = catalogue.paquets.filter(e => e.id !== d.id);
+    catalogue.maj = new Date().toISOString();
+    await ecrireFichier(reglages.depotPublic, 'catalogue.json',
+      JSON.stringify(catalogue, null, 1) + '\n', cat.sha, 'Retire ' + d.id + ' du catalogue');
+  }
+  d.publie = false;
+  await enregistrer(p);
+}
+
+/* ============================================================
+   Aperçu des formules ($...$)
+   ============================================================ */
+function rendreTexte(conteneur, texte) {
+  conteneur.textContent = '';
+  const morceaux = texte.split('$');
+  morceaux.forEach((m, i) => {
+    const formule = i % 2 === 1 && i < morceaux.length - 1;
+    if (formule) {
+      const s = document.createElement('span');
+      try {
+        katex.render(m, s, { throwOnError: true });
+      } catch (e) {
+        s.className = 'erreur-math';
+        s.textContent = '⚠ formule invalide : $' + m + '$';
+      }
+      conteneur.append(s);
+    } else {
+      const brut = (i % 2 === 1 ? '$' : '') + m;
+      brut.split('\n').forEach((ligne, j) => {
+        if (j > 0) conteneur.append(document.createElement('br'));
+        conteneur.append(document.createTextNode(ligne));
+      });
+    }
+  });
+}
+
+/* ============================================================
+   Écran de connexion
+   ============================================================ */
+/* --- Accès : la clé GitHub est chiffrée (AES-GCM) dans acces.json ; l'identifiant + le mot de passe la déchiffrent --- */
+const ITER = 600000;
+const enc = new TextEncoder(), dec = new TextDecoder();
+function versB64(buf) { let s = ''; new Uint8Array(buf).forEach(o => s += String.fromCharCode(o)); return btoa(s); }
+function depuisB64(b) { return Uint8Array.from(atob(b), c => c.charCodeAt(0)); }
+async function deriverCle(identifiant, mdp, sel) {
+  const base = await crypto.subtle.importKey('raw', enc.encode(identifiant.trim().toLowerCase() + '\n' + mdp), 'PBKDF2', false, ['deriveKey']);
+  return crypto.subtle.deriveKey({ name: 'PBKDF2', salt: sel, iterations: ITER, hash: 'SHA-256' }, base,
+    { name: 'AES-GCM', length: 256 }, false, ['encrypt', 'decrypt']);
+}
+async function chiffrerJeton(jetonClair, identifiant, mdp) {
+  const sel = crypto.getRandomValues(new Uint8Array(16)), iv = crypto.getRandomValues(new Uint8Array(12));
+  const cle = await deriverCle(identifiant, mdp, sel);
+  const donnees = await crypto.subtle.encrypt({ name: 'AES-GCM', iv }, cle, enc.encode(jetonClair));
+  return { v: 1, iter: ITER, sel: versB64(sel), iv: versB64(iv), donnees: versB64(donnees) };
+}
+async function dechiffrerJeton(acces, identifiant, mdp) {
+  const cle = await deriverCle(identifiant, mdp, depuisB64(acces.sel));
+  const clair = await crypto.subtle.decrypt({ name: 'AES-GCM', iv: depuisB64(acces.iv) }, cle, depuisB64(acces.donnees));
+  return dec.decode(clair);
+}
+
+function ecranConnexion(messageErreur) {
+  const app = document.getElementById('app');
+  app.textContent = '';
+  const champId = h('input', { type: 'text', id: 'ident', autocomplete: 'username', autocapitalize: 'none' });
+  const champMdp = h('input', { type: 'password', id: 'mdp', autocomplete: 'current-password' });
+  const msg = h('p', { class: 'erreur-math' }, messageErreur || '');
+  const entrer = async () => {
+    msg.textContent = '';
+    try {
+      const r = await fetch('acces.json', { cache: 'no-store' });
+      if (!r.ok) throw new Error('absent');
+      const acces = await r.json();
+      jeton = await dechiffrerJeton(acces, champId.value, champMdp.value);
+    } catch (e) {
+      msg.textContent = 'Identifiant ou mot de passe incorrect.';
+      return;
+    }
+    ecrireTexte(sessionStorage, 'mf-jeton', jeton);
+    await demarrer();
+  };
+  app.append(h('div', { class: 'connexion' },
+    h('div', { class: 'panneau' },
+      h('h1', {}, 'Connexion'),
+      msg,
+      h('label', { class: 'champ', for: 'ident' }, 'Identifiant', champId),
+      h('label', { class: 'champ', for: 'mdp' }, 'Mot de passe', champMdp),
+      h('button', { class: 'bouton principal', style: 'margin-top:12px', onclick: entrer }, 'Se connecter'))));
+  champMdp.addEventListener('keydown', e => { if (e.key === 'Enter') entrer(); });
+  champId.focus();
+}
+
+/* Installation (une seule fois) : #installation — fabrique acces.json à partir de la clé GitHub */
+function ecranInstallation() {
+  const app = document.getElementById('app');
+  app.textContent = '';
+  const cj = h('input', { type: 'password', placeholder: 'github_pat_…' });
+  const ci = h('input', { type: 'text', value: 'bruno' });
+  const cm = h('input', { type: 'password' });
+  const sortie = h('textarea', { rows: 6, readonly: true, style: 'width:100%' });
+  const faire = async () => {
+    if (!cj.value.trim() || !cm.value) { notifier('Renseigne la clé et le mot de passe.', true); return; }
+    sortie.value = JSON.stringify(await chiffrerJeton(cj.value.trim(), ci.value, cm.value));
+    cj.value = '';
+    notifier('Copie ce texte et envoie-le à Claude.');
+  };
+  app.append(h('div', { class: 'connexion' }, h('div', { class: 'panneau' },
+    h('h1', {}, 'Installation'),
+    h('p', {}, 'La clé GitHub est chiffrée ici, dans ton navigateur. Seul le texte chiffré ci-dessous est à transmettre.'),
+    h('label', { class: 'champ' }, 'Clé GitHub', cj),
+    h('label', { class: 'champ' }, 'Identifiant', ci),
+    h('label', { class: 'champ' }, 'Mot de passe', cm),
+    h('button', { class: 'bouton principal', style: 'margin:12px 0', onclick: faire }, 'Chiffrer'),
+    sortie)));
+}
+
+function deconnecter() {
+  jeton = '';
+  effacerTexte(sessionStorage, 'mf-jeton');
+  etat.paquets = [];
+  etat.courant = null;
+  ecranConnexion();
+}
+
+/* ============================================================
+   Écran principal
+   ============================================================ */
+function afficherApp() {
+  const app = document.getElementById('app');
+  app.textContent = '';
+  app.append(
+    h('div', { class: 'barre' },
+      h('h1', {}, 'MemoFlash · Bibliothèque'),
+      h('button', { class: 'bouton petit', onclick: nouveauPaquet }, '+ Nouveau paquet'),
+      h('button', { class: 'bouton petit', onclick: () => demarrer() }, 'Recharger'),
+      h('button', { class: 'bouton petit', onclick: deconnecter }, 'Se déconnecter')),
+    h('div', { class: 'mise-en-page' },
+      h('aside', { class: 'panneau liste', id: 'liste' }),
+      h('main', { id: 'editeur' })));
+  rafraichirListe();
+  rafraichirEditeur();
+}
+
+function pastillesDe(d) {
+  return h('div', { class: 'pastilles' },
+    h('span', { class: 'pastille ' + (d.statut === 'valide' ? 'ok' : 'alerte') },
+      d.statut === 'valide' ? 'Validé' : 'En cours'),
+    h('span', { class: 'pastille ' + (d.acces === 'payant' ? 'payant' : '') },
+      d.acces === 'payant' ? 'Payant' : 'Gratuit'),
+    h('span', { class: 'pastille' }, nbValidees(d) + '/' + d.cartes.length + ' relues'),
+    d.publie ? h('span', { class: 'pastille ok' }, 'Publié v' + (d.versionPubliee || 1)) : null);
+}
+
+function rafraichirListe() {
+  const liste = document.getElementById('liste');
+  if (!liste) return;
+  liste.textContent = '';
+  if (etat.paquets.length === 0) {
+    liste.append(h('div', { class: 'vide' }, 'Aucun paquet pour le moment.'));
+    return;
+  }
+  let groupeCourant = '';
+  etat.paquets.forEach((p, i) => {
+    const d = p.data;
+    const groupe = d.matiere + ' · ' + d.niveau;
+    if (groupe !== groupeCourant) {
+      groupeCourant = groupe;
+      liste.append(h('div', { class: 'groupe' }, groupe));
+    }
+    liste.append(h('button', {
+      class: 'element' + (i === etat.courant ? ' actif' : ''),
+      onclick: () => { etat.courant = i; rafraichirListe(); rafraichirEditeur(); }
+    },
+      h('div', { class: 'nom' }, d.nom + (p.modifie ? ' •' : '')),
+      pastillesDe(d)));
+  });
+}
+
+function ouvrirLecture(p) {
+  const d = p.data; let i = 0, verso = false;
+  const fond = h('div', { class: 'lecture-fond' });
+  const compteur = h('span'), face = h('div', { class: 'face' });
+  const bPrec = h('button', { class: 'bouton', onclick: () => { i = Math.max(0, i - 1); verso = false; maj(); } }, '‹');
+  const bRep = h('button', { class: 'bouton principal', onclick: () => { verso = !verso; maj(); } }, 'Retourner');
+  const bSuiv = h('button', { class: 'bouton', onclick: () => { i = Math.min(d.cartes.length - 1, i + 1); verso = false; maj(); } }, '›');
+  const fermer = () => fond.remove();
+  function maj() {
+    const c = d.cartes[i];
+    compteur.textContent = d.cartes.length ? 'Carte ' + (i + 1) + ' / ' + d.cartes.length + (c.valide ? ' · ✓ validée' : '') : 'Aucune carte';
+    if (c) rendreTexte(face, verso ? c.verso : c.recto);
+    bRep.textContent = verso ? 'Voir la question' : 'Voir la réponse';
+  }
+  fond.append(h('div', { class: 'lecture' },
+    h('div', { class: 'tete' }, compteur, h('button', { class: 'bouton petit', onclick: fermer }, 'Fermer')),
+    face, h('div', { class: 'pied' }, bPrec, bRep, bSuiv)));
+  fond.addEventListener('click', e => { if (e.target === fond) fermer(); });
+  document.body.append(fond);
+  maj();
+}
+
+function rafraichirBarreActions() {
+  const p = paquetCourant();
+  const zone = document.getElementById('barre-actions');
+  if (!p || !zone) return;
+  zone.textContent = '';
+  const d = p.data;
+  const pret = d.statut === 'valide' && toutesValidees(d);
+
+  zone.append(...[
+    h('div', { class: 'etat' },
+      h('strong', {}, nbValidees(d) + ' carte(s) relue(s) sur ' + d.cartes.length),
+      p.modifie ? ' · modifications non enregistrées' : ' · enregistré',
+      d.publie ? ' · publié (v' + (d.versionPubliee || 1) + ')' : ''),
+    h('button', { class: 'bouton', disabled: etat.occupe || !p.modifie, onclick: () => action(p, 'enregistrer') },
+      'Enregistrer'),
+    d.statut === 'valide'
+      ? h('button', { class: 'bouton', onclick: () => { d.statut = 'en_cours'; marquerModifie(p); rafraichirEditeur(); } },
+          'Rouvrir le paquet')
+      : h('button', {
+          class: 'bouton', disabled: !toutesValidees(d),
+          title: toutesValidees(d) ? '' : 'Toutes les cartes doivent être relues et remplies',
+          onclick: () => { d.statut = 'valide'; marquerModifie(p); rafraichirEditeur(); }
+        }, 'Valider le paquet'),
+    h('button', {
+      class: 'bouton principal',
+      disabled: etat.occupe || !pret || d.acces !== 'gratuit',
+      title: d.acces !== 'gratuit' ? 'Les paquets payants seront publiés à l\'étape achats intégrés' : (pret ? '' : 'Valide d\'abord le paquet'),
+      onclick: () => action(p, 'exporter')
+    }, 'Valider le paquet et l\'envoyer dans l\'appli'),
+    h('button', { class: 'bouton', onclick: () => ouvrirLecture(p) }, 'Lire comme dans l\'appli')
+  ].filter(Boolean));
+}
+
+async function action(p, nom) {
+  if (etat.occupe) return;
+  etat.occupe = true;
+  rafraichirBarreActions();
+  try {
+    if (nom === 'enregistrer') {
+      await enregistrer(p);
+      notifier('Enregistré dans GitHub.');
+    } else if (nom === 'exporter') {
+      if (!confirm('Envoyer ce paquet dans memoflash-catalogue et le supprimer de memoflash-cartes ?')) return;
+      if (p.modifie) await enregistrer(p);
+      await exporter(p);
+      notifier('Paquet publié dans le catalogue et retiré de memoflash-cartes.');
+    } else if (nom === 'retirer') {
+      if (!confirm('Retirer ce paquet du catalogue de l\'appli ? Les élèves qui l\'ont déjà téléchargé le gardent.')) return;
+      await retirer(p);
+      notifier('Retiré du catalogue.');
+    } else if (nom === 'supprimer') {
+      await supprimerFichier(reglages.depotPrive, 'paquets/' + p.data.id + '.json', p.sha, 'Supprime ' + p.data.id);
+      etat.paquets.splice(etat.paquets.indexOf(p), 1);
+      etat.courant = null;
+      notifier('Paquet supprimé.');
+    }
+  } catch (e) {
+    if (e.status === 401 || e.status === 403) notifier('GitHub refuse l\'accès (' + e.message + '). Vérifie ta clé et ses permissions.', true);
+    else if (e.status === 409 || e.status === 422) notifier('Conflit : le fichier a changé sur GitHub. Clique sur « Recharger » (tes modifications locales seront perdues).', true);
+    else notifier(e.message, true);
+  } finally {
+    etat.occupe = false;
+    rafraichirListe();
+    rafraichirEditeur();
+  }
+}
+
+function nouveauPaquet() {
+  const matiere = prompt('Matière (ex. Mathématiques) :', 'Mathématiques');
+  if (!matiere) return;
+  const niveau = prompt('Niveau (ex. 3e) :', '3e');
+  if (!niveau) return;
+  const nom = prompt('Nom du paquet (ex. Équations) :');
+  if (!nom) return;
+  const id = slug(niveau + ' ' + nom);
+  if (etat.paquets.some(p => p.data.id === id)) { notifier('Un paquet avec ce nom existe déjà.', true); return; }
+  const ordre = Math.max(0, ...etat.paquets.filter(p => p.data.niveau === niveau && p.data.matiere === matiere).map(p => p.data.ordre || 0)) + 1;
+  const p = {
+    sha: null, modifie: true,
+    data: {
+      id, matiere: matiere.trim(), niveau: niveau.trim(), nom: nom.trim(), ordre,
+      statut: 'en_cours', acces: 'gratuit', prix: null, publie: false, versionPubliee: 0,
+      cartes: [{ id: 'c001', recto: '', verso: '', valide: false }]
+    }
+  };
+  etat.paquets.push(p);
+  etat.courant = etat.paquets.length - 1;
+  triPaquets();
+  afficherApp();
+}
+
+function rafraichirEditeur() {
+  const zone = document.getElementById('editeur');
+  if (!zone) return;
+  zone.textContent = '';
+  const p = paquetCourant();
+  if (!p) {
+    zone.append(h('div', { class: 'panneau vide' }, 'Choisis un paquet dans la liste.'));
+    return;
+  }
+  const d = p.data;
+
+  const champTexte = (libelle, cle) => h('label', { class: 'champ' }, libelle,
+    h('input', { type: 'text', value: d[cle], oninput: e => { d[cle] = e.target.value; marquerModifie(p); } }));
+
+  const prix = h('label', { class: 'champ', style: d.acces === 'payant' ? '' : 'display:none', id: 'champ-prix' }, 'Prix (€)',
+    h('input', {
+      type: 'number', min: '0', step: '0.01', value: d.prix == null ? '' : d.prix,
+      oninput: e => { d.prix = e.target.value === '' ? null : Number(e.target.value); marquerModifie(p); }
+    }));
+
+  const selectAcces = h('select', {
+    onchange: e => {
+      if (e.target.value === 'payant' && d.publie) {
+        alert('Ce paquet est publié gratuitement. Retire-le d\'abord de l\'appli.');
+        e.target.value = 'gratuit';
+        return;
+      }
+      d.acces = e.target.value;
+      document.getElementById('champ-prix').style.display = d.acces === 'payant' ? '' : 'none';
+      marquerModifie(p);
+      rafraichirBarreActions();
+    }
+  },
+    h('option', { value: 'gratuit', selected: d.acces === 'gratuit' }, 'Gratuit'),
+    h('option', { value: 'payant', selected: d.acces === 'payant' }, 'Payant'));
+
+  zone.append(
+    h('div', { class: 'panneau' },
+      h('h2', {}, d.niveau + ' · ' + d.nom),
+      h('div', { class: 'champs' },
+        champTexte('Matière', 'matiere'), champTexte('Niveau', 'niveau'), champTexte('Nom du paquet', 'nom'),
+        h('label', { class: 'champ' }, 'Accès', selectAcces), prix),
+      h('div', { class: 'barre-actions', id: 'barre-actions' })));
+
+  const cartes = h('div', { id: 'cartes' });
+  zone.append(cartes);
+  d.cartes.forEach((c, i) => cartes.append(blocCarte(p, c, i)));
+
+  zone.append(h('div', { class: 'rangee', style: 'margin:16px 0' },
+    h('button', { class: 'bouton', onclick: () => {
+      d.cartes.push({ id: prochainIdCarte(d), recto: '', verso: '', valide: false });
+      invaliderPaquet(p); marquerModifie(p); rafraichirEditeur();
+    } }, '+ Ajouter une carte'),
+    h('button', { class: 'bouton', onclick: () => {
+      if (!d.cartes.every(estRempli)) { notifier('Certaines cartes sont vides : complète-les avant de tout cocher.', true); return; }
+      d.cartes.forEach(c => { c.valide = true; });
+      marquerModifie(p); rafraichirEditeur();
+    } }, 'Tout cocher comme relu'),
+    h('button', { class: 'bouton danger', onclick: () => {
+      if (d.publie) { notifier('Retire d\'abord ce paquet de l\'appli.', true); return; }
+      if (confirm('Supprimer définitivement le paquet « ' + d.nom + ' » ?')) {
+        if (!p.sha) { etat.paquets.splice(etat.paquets.indexOf(p), 1); etat.courant = null; rafraichirListe(); rafraichirEditeur(); }
+        else action(p, 'supprimer');
+      }
+    } }, 'Supprimer le paquet')));
+
+  rafraichirBarreActions();
+}
+
+function blocCarte(p, c, i) {
+  const d = p.data;
+  const apercuRecto = h('div', { class: 'apercu' });
+  const apercuVerso = h('div', { class: 'apercu' });
+  rendreTexte(apercuRecto, c.recto);
+  rendreTexte(apercuVerso, c.verso);
+
+  const case_ = h('input', { type: 'checkbox', checked: !!c.valide, onchange: e => {
+    c.valide = e.target.checked;
+    bloc.classList.toggle('validee', c.valide);
+    if (!c.valide) invaliderPaquet(p);
+    marquerModifie(p);
+    rafraichirBarreActions();
+  } });
+
+  const modifier = (cote, apercu) => e => {
+    c[cote] = e.target.value;
+    rendreTexte(apercu, c[cote]);
+    if (c.valide) { c.valide = false; case_.checked = false; bloc.classList.remove('validee'); }
+    invaliderPaquet(p);
+    marquerModifie(p);
+    rafraichirBarreActions();
+  };
+
+  const deplacer = delta => () => {
+    const j = i + delta;
+    if (j < 0 || j >= d.cartes.length) return;
+    [d.cartes[i], d.cartes[j]] = [d.cartes[j], d.cartes[i]];
+    marquerModifie(p);
+    rafraichirEditeur();
+  };
+
+  const bloc = h('div', { class: 'carte-edit' + (c.valide ? ' validee' : '') },
+    h('div', { class: 'carte-tete' },
+      h('span', { class: 'num' }, 'Carte ' + (i + 1)),
+      h('label', { class: 'verif' }, case_, 'Relue et validée'),
+      h('button', { class: 'bouton petit', title: 'Monter', disabled: i === 0, onclick: deplacer(-1) }, '↑'),
+      h('button', { class: 'bouton petit', title: 'Descendre', disabled: i === d.cartes.length - 1, onclick: deplacer(1) }, '↓'),
+      h('button', { class: 'bouton petit danger', title: 'Supprimer la carte', onclick: () => {
+        if (!confirm('Supprimer cette carte ?')) return;
+        d.cartes.splice(i, 1);
+        invaliderPaquet(p); marquerModifie(p); rafraichirEditeur();
+      } }, 'Supprimer')),
+    h('div', { class: 'faces' },
+      h('div', { class: 'face' },
+        h('div', { class: 'titre-face' }, 'Recto'),
+        h('textarea', { value: c.recto, oninput: modifier('recto', apercuRecto), 'aria-label': 'Recto de la carte ' + (i + 1) }),
+        apercuRecto),
+      h('div', { class: 'face' },
+        h('div', { class: 'titre-face' }, 'Verso'),
+        h('textarea', { value: c.verso, oninput: modifier('verso', apercuVerso), 'aria-label': 'Verso de la carte ' + (i + 1) }),
+        apercuVerso)));
+  return bloc;
+}
+
+/* ============================================================
+   Démarrage
+   ============================================================ */
+async function demarrer() {
+  if (location.hash === '#installation') { ecranInstallation(); return; }
+  if (!jeton) { ecranConnexion(); return; }
+  if (etat.paquets.some(p => p.modifie) && !confirm('Des modifications ne sont pas enregistrées. Recharger quand même ?')) return;
+  const app = document.getElementById('app');
+  app.textContent = '';
+  app.append(h('div', { class: 'vide' }, 'Chargement des paquets…'));
+  try {
+    const anciens = paquetCourant() && paquetCourant().data.id;
+    etat.paquets = await listerPaquets();
+    etat.courant = null;
+    triPaquets();
+    if (anciens) { const i = etat.paquets.findIndex(p => p.data.id === anciens); if (i >= 0) etat.courant = i; }
+    afficherApp();
+  } catch (e) {
+    if (e.status === 401) { jeton = ''; effacerTexte(sessionStorage, 'mf-jeton'); ecranConnexion('La clé GitHub a expiré : il faut la renouveler.'); }
+    else if (e.status === 404) ecranConnexion('Dépôt introuvable : vérifie les accès de la clé GitHub.');
+    else ecranConnexion('Impossible de charger les paquets : ' + e.message);
+  }
+}
+
+window.addEventListener('beforeunload', e => {
+  if (etat.paquets.some(p => p.modifie)) { e.preventDefault(); e.returnValue = ''; }
+});
+window.addEventListener('keydown', e => {
+  if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 's') {
+    e.preventDefault();
+    const p = paquetCourant();
+    if (p && p.modifie) action(p, 'enregistrer');
+  }
+});
+
+demarrer();
+</script>
+</body>
+</html>
