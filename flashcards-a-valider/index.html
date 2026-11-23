@@ -514,7 +514,7 @@ function confirmer(texte) {
 function ouvrirLecture(p) {
   const d = p.data; let i = 0, verso = false;
   const fond = h('div', { class: 'lecture-fond' });
-  const compteur = h('span'), face = h('div', { class: 'face' });
+  const compteur = h('span'), contenu = h('div', { style: 'max-width:100%;line-height:1.7;overflow-wrap:anywhere' }), face = h('div', { class: 'face' }, contenu);
   const bPrec = h('button', { class: 'bouton', onclick: () => { i = Math.max(0, i - 1); verso = false; maj(); } }, '‹');
   const bRep = h('button', { class: 'bouton principal', onclick: () => { verso = !verso; maj(); } }, 'Retourner');
   const bSuiv = h('button', { class: 'bouton', onclick: () => { i = Math.min(d.cartes.length - 1, i + 1); verso = false; maj(); } }, '›');
@@ -522,7 +522,7 @@ function ouvrirLecture(p) {
   function maj() {
     const c = d.cartes[i];
     compteur.textContent = d.cartes.length ? 'Carte ' + (i + 1) + ' / ' + d.cartes.length + (c.valide ? ' · ✓ validée' : '') : 'Aucune carte';
-    if (c) rendreTexte(face, verso ? c.verso : c.recto);
+    if (c) rendreTexte(contenu, verso ? c.verso : c.recto);
     bRep.textContent = verso ? 'Voir la question' : 'Voir la réponse';
   }
   fond.append(h('div', { class: 'lecture' },
