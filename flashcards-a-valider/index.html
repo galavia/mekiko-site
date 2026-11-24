@@ -218,6 +218,41 @@ async function listerPaquets() {
       resultats.push({ sha: r.sha, data, modifie: false });
     });
   }
+  // Paquets qui ne sont que dans le catalogue public (déjà validés et retirés d'ici)
+  try {
+    const deja = new Set(resultats.map(r => r.data.id));
+    const duCatalogue = await listerCatalogue(deja);
+    return resultats.concat(duCatalogue);
+  } catch (e) {
+    notifier('Le catalogue public n\'a pas pu être lu : ' + e.message, true);
+    return resultats;
+  }
+}
+
+async function listerCatalogue(dejaLa) {
+  const cat = await lireFichier(reglages.depotPublic, 'catalogue.json');
+  if (!cat) return [];
+  const entrees = (JSON.parse(cat.texte).paquets || []).filter(e => !dejaLa.has(e.id));
+  const resultats = [];
+  for (let i = 0; i < entrees.length; i += 6) {
+    const lot = await Promise.all(entrees.slice(i, i + 6).map(async e => {
+      const r = await lireFichier(reglages.depotPublic, e.fichier);
+      if (!r) return null;
+      const pq = JSON.parse(r.texte).matieres[0].paquets[0];
+      const cartes = pq.cartes.map((c, k) => ({
+        id: 'c' + String(k + 1).padStart(3, '0'), recto: c.recto, verso: c.verso, valide: true
+      }));
+      return {
+        sha: r.sha, modifie: false, origine: 'catalogue',
+        data: {
+          id: e.id, matiere: e.matiere, niveau: e.niveau, nom: e.nom, ordre: 0,
+          statut: 'valide', acces: 'gratuit', prix: null, publie: true,
+          versionPubliee: e.version || 1, cartes
+        }
+      };
+    }));
+    lot.forEach(x => { if (x) resultats.push(x); });
+  }
   return resultats;
 }
 
@@ -263,6 +298,11 @@ function triPaquets() {
    ============================================================ */
 async function enregistrer(p) {
   const d = p.data;
+  if (p.origine === 'catalogue') {          // ce paquet n'existe que dans le catalogue public
+    p.sha = await publierDansCatalogue(d);
+    p.modifie = false;
+    return;
+  }
   d.maj = new Date().toISOString();
   p.sha = await ecrireFichier(reglages.depotPrive, 'paquets/' + d.id + '.json',
     JSON.stringify(d, null, 1) + '\n', p.sha, 'Met à jour ' + d.id);
@@ -283,15 +323,14 @@ function contenuPourAppli(d) {
   };
 }
 
-async function exporter(p) {
-  const d = p.data;
+async function publierDansCatalogue(d) {
   if (d.acces !== 'gratuit') throw new Error('Seuls les paquets gratuits peuvent être exportés pour le moment.');
-  if (d.statut !== 'valide' || !toutesValidees(d)) throw new Error('Valide toutes les cartes puis le paquet avant d\'exporter.');
-
+  if (d.cartes.length === 0 || !d.cartes.every(estRempli)) throw new Error('Toutes les cartes doivent être remplies avant de publier.');
   d.versionPubliee = (d.versionPubliee || 0) + 1;
+  d.publie = true;
   const fichier = 'paquets/' + d.id + '.json';
   const existant = await lireFichier(reglages.depotPublic, fichier);
-  await ecrireFichier(reglages.depotPublic, fichier,
+  const nouveauSha = await ecrireFichier(reglages.depotPublic, fichier,
     JSON.stringify(contenuPourAppli(d), null, 1) + '\n', existant && existant.sha,
     'Publie ' + d.id + ' (version ' + d.versionPubliee + ')');
 
@@ -306,7 +345,14 @@ async function exporter(p) {
   catalogue.maj = new Date().toISOString();
   await ecrireFichier(reglages.depotPublic, 'catalogue.json',
     JSON.stringify(catalogue, null, 1) + '\n', cat && cat.sha, 'Met à jour le catalogue');
+  return nouveauSha;
+}
 
+async function exporter(p) {
+  const d = p.data;
+  if (d.acces !== 'gratuit') throw new Error('Seuls les paquets gratuits peuvent être exportés pour le moment.');
+  if (d.statut !== 'valide' || !toutesValidees(d)) throw new Error('Valide toutes les cartes puis le paquet avant d\'exporter.');
+  await publierDansCatalogue(d);
   await supprimerFichier(reglages.depotPrive, 'paquets/' + d.id + '.json', p.sha, 'Paquet validé et publié : ' + d.id);
   etat.paquets.splice(etat.paquets.indexOf(p), 1);
   etat.courant = null;
@@ -541,6 +587,17 @@ function rafraichirBarreActions() {
   const d = p.data;
   const pret = d.statut === 'valide' && toutesValidees(d);
 
+  if (p.origine === 'catalogue') {
+    zone.append(
+      h('div', { class: 'etat' },
+        h('strong', {}, d.cartes.length + ' carte(s) · dans l\'appli (v' + (d.versionPubliee || 1) + ')'),
+        p.modifie ? ' · modifications pas encore publiées' : ' · à jour'),
+      h('button', { class: 'bouton principal', disabled: etat.occupe || !p.modifie, onclick: () => action(p, 'enregistrer') },
+        'Enregistrer et publier dans l\'appli'),
+      h('button', { class: 'bouton', onclick: () => ouvrirLecture(p) }, 'Lire comme dans l\'appli'));
+    return;
+  }
+
   zone.append(...[
     h('div', { class: 'etat' },
       h('strong', {}, nbValidees(d) + ' carte(s) relue(s) sur ' + d.cartes.length),
@@ -562,6 +619,11 @@ function rafraichirBarreActions() {
       title: d.acces !== 'gratuit' ? 'Les paquets payants seront publiés à l\'étape achats intégrés' : (pret ? '' : 'Valide d\'abord le paquet'),
       onclick: () => action(p, 'exporter')
     }, 'Valider le paquet et l\'envoyer dans l\'appli'),
+    d.publie ? h('button', {
+      class: 'bouton principal', disabled: etat.occupe,
+      title: 'Envoie la version actuelle dans l\'appli, sans retirer le paquet d\'ici',
+      onclick: () => action(p, 'majcatalogue')
+    }, 'Mettre à jour dans l\'appli') : null,
     h('button', { class: 'bouton', onclick: () => ouvrirLecture(p) }, 'Lire comme dans l\'appli')
   ].filter(Boolean));
 }
@@ -573,7 +635,12 @@ async function action(p, nom) {
   try {
     if (nom === 'enregistrer') {
       await enregistrer(p);
-      notifier('Enregistré dans GitHub.');
+      notifier(p.origine === 'catalogue' ? 'Publié dans l\'appli (v' + p.data.versionPubliee + ').' : 'Enregistré dans GitHub.');
+    } else if (nom === 'majcatalogue') {
+      if (!await confirmer('Envoyer la version actuelle de « ' + p.data.nom + ' » dans l\'appli ? Les élèves la verront à leur prochain téléchargement.')) return;
+      await publierDansCatalogue(p.data);
+      await enregistrer(p);
+      notifier('Mis à jour dans l\'appli (v' + p.data.versionPubliee + ').');
     } else if (nom === 'exporter') {
       if (!await confirmer('Envoyer ce paquet dans memoflash-catalogue et le supprimer de memoflash-cartes ?')) return;
       if (p.modifie) await enregistrer(p);
